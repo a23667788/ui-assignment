@@ -12,6 +12,7 @@ import (
 	"github.com/a23667788/ui-assignment/internal/entity"
 	"github.com/a23667788/ui-assignment/internal/token"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -19,6 +20,7 @@ type Ubiquiti struct {
 	Router *mux.Router
 	DB     *sql.DB
 	Jwt    token.JWT
+	Ws     *websocket.Conn
 }
 
 func (ui *Ubiquiti) Initialize() {
@@ -76,6 +78,8 @@ func (ui *Ubiquiti) initializeRoutes() {
 	patchR.HandleFunc("/username/{account}", ui.updateFullname)
 	patchR.Use(ui.authMiddleware)
 
+	// handle websocket
+	ui.Router.HandleFunc("/ws", ui.wsEndpoint)
 }
 
 func (ui *Ubiquiti) listUsers(w http.ResponseWriter, r *http.Request) {
@@ -227,6 +231,14 @@ func (ui *Ubiquiti) userSession(w http.ResponseWriter, r *http.Request) {
 	err = client.Validate(req)
 	if err != nil {
 		log.Error(err)
+
+		// Send login err to ws
+		text := []byte("login error")
+		if err := ui.Ws.WriteMessage(websocket.TextMessage, text); err != nil {
+			log.Println(err)
+
+		}
+
 		respondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -335,6 +347,43 @@ func (ui *Ubiquiti) updateFullname(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+
+}
+
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
+
+func reader(conn *websocket.Conn) {
+	for {
+		// read a message
+		messageType, p, err := conn.ReadMessage()
+		if err != nil {
+			// log.Println(err)
+			return
+		}
+
+		log.Info("reader", string(p))
+
+		if err := conn.WriteMessage(messageType, p); err != nil {
+			// log.Println(err)
+			return
+		}
+	}
+}
+
+func (ui *Ubiquiti) wsEndpoint(w http.ResponseWriter, r *http.Request) {
+
+	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
+
+	var err error
+	ui.Ws, err = upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Error(err)
+	}
+
+	reader(ui.Ws)
 
 }
 
