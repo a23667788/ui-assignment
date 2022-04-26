@@ -27,6 +27,20 @@ func (ui *Ubiquiti) Initialize() {
 
 	ui.Router = mux.NewRouter()
 	ui.initializeRoutes()
+
+	// jwt setting
+	prvKey, err := ioutil.ReadFile("assets/jwtRS256.key")
+	if err != nil {
+		log.Error(err)
+		panic(err)
+	}
+	pubKey, err := ioutil.ReadFile("assets/jwtRS256.key.pub")
+	if err != nil {
+		log.Error(err)
+		panic(err)
+	}
+
+	ui.Jwt = token.NewJWT(prvKey, pubKey)
 }
 
 func (ui *Ubiquiti) Run() {
