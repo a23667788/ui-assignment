@@ -35,3 +35,17 @@ type GetUser struct {
 
 type GetUserDetailRequest struct {
 }
+
+type CreateUserRequest struct {
+	// The account of user
+	Acct string `json:"account"`
+
+	// The fullname of user
+	Fullname string `json:"fullname"`
+
+	// The password of user
+	Pwd string `json:"password"`
+}
+
+type CreateUserResponse struct {
+}

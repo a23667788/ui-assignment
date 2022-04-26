@@ -92,6 +92,15 @@ func (m *DBClient) GetUserDetail(account string) (*entity.UserTable, error) {
 	return record, nil
 }
 
+func (m *DBClient) Insert(user entity.CreateUserRequest) error {
+	res := m.client.Create(&user)
+	if res.Error != nil {
+		return res.Error
+	}
+
+	return nil
+}
+
 func (m *DBClient) getUserRecordByFullname(fullname string) *entity.UserTable {
 	var user entity.UserTable
 

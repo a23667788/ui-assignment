@@ -3,9 +3,11 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/a23667788/ui-assignment/internal/client/postgres"
+	"github.com/a23667788/ui-assignment/internal/entity"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
@@ -36,6 +38,11 @@ func (ui *Ubiquiti) initializeRoutes() {
 	getR.HandleFunc("/user/{fullname}", ui.getUser)
 	// get the user’s detailed information.
 	getR.HandleFunc("/userDetail/{account}", ui.getUserDetail)
+
+	postR := ui.Router.Methods(http.MethodPost).Subrouter()
+	// create the user (user sign up).
+	postR.HandleFunc("/user", ui.createUser)
+
 }
 
 func (ui *Ubiquiti) listUsers(w http.ResponseWriter, r *http.Request) {
@@ -117,6 +124,41 @@ func (ui *Ubiquiti) getUserDetail(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonResponse)
+}
+
+func (ui *Ubiquiti) createUser(w http.ResponseWriter, r *http.Request) {
+	log.Info("createUser start")
+	defer log.Info("createUser done")
+
+	client := postgres.DBClient{}
+	client.Connect()
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Error(err)
+		respondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	log.Debug(string(body))
+
+	var req entity.CreateUserRequest
+	err = json.Unmarshal(body, &req)
+	if err != nil {
+		log.Error(err)
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	err = client.Insert(req)
+	if err != nil {
+		log.Error(err)
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 }
 
 func respondWithError(w http.ResponseWriter, code int, message string) {
