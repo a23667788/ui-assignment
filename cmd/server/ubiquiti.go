@@ -56,6 +56,7 @@ func (ui *Ubiquiti) initializeRoutes() {
 	getR.HandleFunc("/user/{fullname}", ui.getUser)
 	// get the user’s detailed information.
 	getR.HandleFunc("/userDetail/{account}", ui.getUserDetail)
+	getR.Use(ui.authMiddleware)
 
 	postR := ui.Router.Methods(http.MethodPost).Subrouter()
 	// create the user (user sign up).
@@ -66,12 +67,14 @@ func (ui *Ubiquiti) initializeRoutes() {
 	deleteR := ui.Router.Methods(http.MethodDelete).Subrouter()
 	// delete the user.
 	deleteR.HandleFunc("/user/{account}", ui.deleteUser)
+	deleteR.Use(ui.authMiddleware)
 
 	patchR := ui.Router.Methods(http.MethodPatch).Subrouter()
 	// update the user.
 	patchR.HandleFunc("/user/{account}", ui.updateUser)
 	// update user’s fullname.
 	patchR.HandleFunc("/username/{account}", ui.updateFullname)
+	patchR.Use(ui.authMiddleware)
 
 }
 
@@ -333,6 +336,31 @@ func (ui *Ubiquiti) updateFullname(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
+}
+
+func (ui *Ubiquiti) authMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		tokenString := r.Header.Get("Authorization")
+		if len(tokenString) == 0 {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte("Missing Authorization Header"))
+			return
+		}
+		tokenString = strings.Replace(tokenString, "Bearer ", "", 1)
+		claims, err := ui.Jwt.Validate(tokenString)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte("Error verifying JWT token: " + err.Error()))
+			return
+		}
+
+		dat := claims.(string)
+
+		r.Header.Set("dat", dat)
+
+		next.ServeHTTP(w, r)
+	})
 }
 
 func respondWithError(w http.ResponseWriter, code int, message string) {
