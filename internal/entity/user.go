@@ -58,3 +58,9 @@ type UserSessionRequest struct {
 type UserSessionResponse struct {
 	Jwt string `json:"jtw"`
 }
+
+type DeleteUserRequest struct {
+}
+
+type DeleteUserResponse struct {
+}

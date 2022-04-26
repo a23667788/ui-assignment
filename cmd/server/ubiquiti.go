@@ -48,6 +48,10 @@ func (ui *Ubiquiti) initializeRoutes() {
 	// generate the token to the user (user sign in).
 	postR.HandleFunc("/userSession", ui.userSession)
 
+	deleteR := ui.Router.Methods(http.MethodDelete).Subrouter()
+	// delete the user.
+	deleteR.HandleFunc("/user/{account}", ui.deleteUser)
+
 }
 
 func (ui *Ubiquiti) listUsers(w http.ResponseWriter, r *http.Request) {
@@ -203,6 +207,27 @@ func (ui *Ubiquiti) userSession(w http.ResponseWriter, r *http.Request) {
 	var resp entity.UserSessionResponse
 	resp.Jwt = tok
 	respondWithJSON(w, http.StatusOK, resp)
+}
+
+func (ui *Ubiquiti) deleteUser(w http.ResponseWriter, r *http.Request) {
+	log.Info("deleteUser start")
+	defer log.Info("deleteUser done")
+
+	client := postgres.DBClient{}
+	client.Connect()
+
+	vars := mux.Vars(r)
+	account := vars["account"]
+
+	err := client.Delete(account)
+	if err != nil {
+		log.Error(err)
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 }
 
 func respondWithError(w http.ResponseWriter, code int, message string) {

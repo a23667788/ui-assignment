@@ -110,6 +110,19 @@ func (m *DBClient) Validate(session entity.UserSessionRequest) error {
 	return nil
 }
 
+func (m *DBClient) Delete(account string) error {
+	record := m.getUserRecordByAcct(account)
+	if record == nil {
+		return fmt.Errorf("record not found")
+	}
+
+	res := m.client.Where("acct = ?", account).Delete(&record)
+	if res.Error != nil {
+		return res.Error
+	}
+	return nil
+}
+
 func (m *DBClient) getUserRecordByFullname(fullname string) *entity.UserTable {
 	var user entity.UserTable
 
