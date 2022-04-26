@@ -32,3 +32,6 @@ type GetUser struct {
 	Acct     string `json:"account"`
 	Fullname string `json:"fullname"`
 }
+
+type GetUserDetailRequest struct {
+}

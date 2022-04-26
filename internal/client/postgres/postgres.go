@@ -84,10 +84,28 @@ func (m *DBClient) Get(fullname string) (*entity.GetUser, error) {
 	return &entity.GetUser{Acct: record.Acct, Fullname: record.Fullname}, nil
 }
 
+func (m *DBClient) GetUserDetail(account string) (*entity.UserTable, error) {
+	record := m.getUserRecordByAcct(account)
+	if record == nil {
+		return nil, fmt.Errorf("record not found")
+	}
+	return record, nil
+}
+
 func (m *DBClient) getUserRecordByFullname(fullname string) *entity.UserTable {
 	var user entity.UserTable
 
 	if err := m.client.Where("fullname = ?", fullname).First(&user).Error; err != nil {
+		return nil
+	} else {
+		return &user
+	}
+}
+
+func (m *DBClient) getUserRecordByAcct(account string) *entity.UserTable {
+	var user entity.UserTable
+
+	if err := m.client.Where("acct = ?", account).First(&user).Error; err != nil {
 		return nil
 	} else {
 		return &user
