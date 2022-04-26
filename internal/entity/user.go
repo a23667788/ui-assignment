@@ -3,6 +3,8 @@ package entity
 import "time"
 
 type ListUsersRequest struct {
+	Paging  int
+	Sorting string
 }
 
 type ListUsersResponse struct {

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"strconv"
 	"time"
 
 	"github.com/a23667788/ui-assignment/internal/entity"
@@ -54,10 +55,27 @@ func (m *DBClient) Disconnect() {
 	m.client.Close()
 }
 
-func (m *DBClient) List() (*entity.ListUsersResponse, error) {
+func (m *DBClient) List(paging string, sorting string) (*entity.ListUsersResponse, error) {
 	var users []entity.UserTable
 	var getUser []entity.GetUser
+
 	var res = m.client
+
+	if sorting != "" {
+		fmt.Println(sorting)
+		res = res.Order(sorting)
+		fmt.Println(sorting)
+	}
+
+	if paging != "" {
+		// max pageSize = 10
+		page, _ := strconv.Atoi(paging)
+
+		pageSize := 10
+		offset := (page - 1) * pageSize
+
+		res = res.Offset(offset).Limit(pageSize)
+	}
 
 	res = res.Find(&users)
 

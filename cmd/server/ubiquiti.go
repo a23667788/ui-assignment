@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/a23667788/ui-assignment/internal/client/postgres"
@@ -62,10 +63,23 @@ func (ui *Ubiquiti) listUsers(w http.ResponseWriter, r *http.Request) {
 	log.Info("listUsers start")
 	defer log.Info("listUsers done")
 
+	var pagingSlice, sortingSlice []string
+	vars := r.URL.Query()
+	pagingSlice = vars["paging"]
+	sortingSlice = vars["sorting"]
+
+	// use first number
+	var paging string
+	if pagingSlice != nil {
+		paging = pagingSlice[0]
+	}
+
+	sorting := strings.Join(sortingSlice[:], " ")
+
 	client := postgres.DBClient{}
 	client.Connect()
 
-	res, err := client.List()
+	res, err := client.List(paging, sorting)
 	if err != nil {
 		log.Error(err)
 		panic(err)
