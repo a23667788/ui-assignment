@@ -32,6 +32,8 @@ func (ui *Ubiquiti) initializeRoutes() {
 	getR := ui.Router.Methods(http.MethodGet).Subrouter()
 	// list all users.
 	getR.HandleFunc("/users", ui.listUsers)
+	// search an user by fullname.
+	getR.HandleFunc("/user/{fullname}", ui.getUser)
 }
 
 func (ui *Ubiquiti) listUsers(w http.ResponseWriter, r *http.Request) {
@@ -55,6 +57,35 @@ func (ui *Ubiquiti) listUsers(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	respondWithJSON(w, http.StatusOK, jsonResponse)
+}
+
+func (ui *Ubiquiti) getUser(w http.ResponseWriter, r *http.Request) {
+	log.Info("getUser start")
+	defer log.Info("getUser done")
+
+	client := postgres.DBClient{}
+	client.Connect()
+
+	vars := mux.Vars(r)
+	fullname := vars["fullname"]
+
+	res, err := client.Get(fullname)
+	if err != nil {
+		log.Error(err)
+		respondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	log.Debug(res)
+
+	jsonResponse, err := json.Marshal(res)
+	if err != nil {
+		log.Error(err)
+		panic(err)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonResponse)
 }
 
 func respondWithError(w http.ResponseWriter, code int, message string) {

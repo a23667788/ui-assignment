@@ -74,3 +74,22 @@ func (m *DBClient) List() (*entity.ListUsersResponse, error) {
 
 	return &entity.ListUsersResponse{Users: getUser}, nil
 }
+
+func (m *DBClient) Get(fullname string) (*entity.GetUser, error) {
+	record := m.getUserRecordByFullname(fullname)
+	if record == nil {
+		return nil, fmt.Errorf("record not found")
+	}
+
+	return &entity.GetUser{Acct: record.Acct, Fullname: record.Fullname}, nil
+}
+
+func (m *DBClient) getUserRecordByFullname(fullname string) *entity.UserTable {
+	var user entity.UserTable
+
+	if err := m.client.Where("fullname = ?", fullname).First(&user).Error; err != nil {
+		return nil
+	} else {
+		return &user
+	}
+}

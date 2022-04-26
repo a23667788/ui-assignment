@@ -26,6 +26,8 @@ type UserTable struct {
 	Updated_at time.Time `json:"updated_at"`
 } // @name User
 
+type GetUserRequest struct {
+}
 type GetUser struct {
 	Acct     string `json:"account"`
 	Fullname string `json:"fullname"`
