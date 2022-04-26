@@ -82,6 +82,16 @@ func (ui *Ubiquiti) initializeRoutes() {
 	ui.Router.HandleFunc("/ws", ui.wsEndpoint)
 }
 
+// listUsers godoc
+// @Summary List all users
+// @Description This is the description for listing user.
+// @Tags Thing
+// @Param paging query int false "paging"
+// @Param sorting query int false "sorting"
+// @Success 200 {object} entity.ListUsersResponse
+// @Success 401 {object} entity.ErrorResponse
+// @Success 403 {object} entity.ErrorResponse
+// @Router /users [get]
 func (ui *Ubiquiti) listUsers(w http.ResponseWriter, r *http.Request) {
 	log.Info("listUsers start")
 	defer log.Info("listUsers done")
@@ -113,6 +123,15 @@ func (ui *Ubiquiti) listUsers(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, res)
 }
 
+// getUser godoc
+// @Summary Get an user by fullname.
+// @Description This is the description for getting user.
+// @Tags Thing
+// @Param fullname path string true "fullname"
+// @Success 200 {object} entity.GetUser
+// @Success 401 {object} entity.ErrorResponse
+// @Success 403 {object} entity.ErrorResponse
+// @Router /user/{fullname} [get]
 func (ui *Ubiquiti) getUser(w http.ResponseWriter, r *http.Request) {
 	log.Info("getUser start")
 	defer log.Info("getUser done")
@@ -142,6 +161,15 @@ func (ui *Ubiquiti) getUser(w http.ResponseWriter, r *http.Request) {
 	w.Write(jsonResponse)
 }
 
+// getUserDetail godoc
+// @Summary Get user’s detailed information.
+// @Description This is the description for getting user detail inform.
+// @Tags Thing
+// @Param account path string true "account"
+// @Success 200 {object} entity.User
+// @Success 401 {object} entity.ErrorResponse
+// @Success 403 {object} entity.ErrorResponse
+// @Router /userDetail/{account} [get]
 func (ui *Ubiquiti) getUserDetail(w http.ResponseWriter, r *http.Request) {
 	log.Info("getUserDetail start")
 	defer log.Info("getUserDetail done")
@@ -171,6 +199,19 @@ func (ui *Ubiquiti) getUserDetail(w http.ResponseWriter, r *http.Request) {
 	w.Write(jsonResponse)
 }
 
+// createUser godoc
+// @Summary Create a user
+// @Description This is the description for creating a user.
+// @Tags Thing
+// @accept application/x-www-form-urlencoded
+// @produce application/json
+// @Param acct formData string true "account"
+// @Param fullname formData string true "fullname"
+// @Param pwd formData string true "password"
+// @Success 200 {object} entity.CreateUserResponse
+// @Success 401 {object} entity.ErrorResponse
+// @Success 403 {object} entity.ErrorResponse
+// @Router /user [post]
 func (ui *Ubiquiti) createUser(w http.ResponseWriter, r *http.Request) {
 	log.Info("createUser start")
 	defer log.Info("createUser done")
@@ -206,6 +247,17 @@ func (ui *Ubiquiti) createUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// userSession godoc
+// @Summary Create a usersession
+// @Description This is the description for creating a usersession.
+// @Tags Thing
+// @accept application/x-www-form-urlencoded
+// @produce application/json
+// @Param acct formData string true "account"
+// @Param pwd formData string true "password"
+// @Success 200 {object} entity.UserSessionResponse
+// @Success 403 {object} entity.ErrorResponse
+// @Router /userSession [post]
 func (ui *Ubiquiti) userSession(w http.ResponseWriter, r *http.Request) {
 	log.Info("userSession start")
 	defer log.Info("userSession done")
@@ -253,6 +305,16 @@ func (ui *Ubiquiti) userSession(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, resp)
 }
 
+// deleteUser godoc
+// @Summary Delete a user
+// @Description This is the description for deleting a user.
+// @Tags Thing
+// @produce application/json
+// @Param account path string true "account"
+// @Success 200 {object} entity.DeleteUserResponse
+// @Success 401 {object} entity.ErrorResponse
+// @Success 403 {object} entity.ErrorResponse
+// @Router /user/{account} [delete]
 func (ui *Ubiquiti) deleteUser(w http.ResponseWriter, r *http.Request) {
 	log.Info("deleteUser start")
 	defer log.Info("deleteUser done")
@@ -274,6 +336,17 @@ func (ui *Ubiquiti) deleteUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// updateUser godoc
+// @Summary Update a user
+// @Description This is the description for updating a user.
+// @Tags Thing
+// @accept json
+// @produce application/json
+// @Param account path string true "account"
+// @Success 200 {object} entity.UpdateUserResponse
+// @Success 401 {object} entity.ErrorResponse
+// @Success 403 {object} entity.ErrorResponse
+// @Router /user/{account} [patch]
 func (ui *Ubiquiti) updateUser(w http.ResponseWriter, r *http.Request) {
 	log.Info("updateUser start")
 	defer log.Info("updateUser done")
@@ -312,6 +385,16 @@ func (ui *Ubiquiti) updateUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// updateFullname godoc
+// @Summary Update a user's fullname
+// @Description This is the description for updating a user's fullname.
+// @Tags Thing
+// @accept json
+// @Param account path string true "account"
+// @Success 200 {object} entity.UpdateUserResponse
+// @Success 401 {object} entity.ErrorResponse
+// @Success 403 {object} entity.ErrorResponse
+// @Router /username/{account} [patch]
 func (ui *Ubiquiti) updateFullname(w http.ResponseWriter, r *http.Request) {
 	log.Info("updateUsername start")
 	defer log.Info("updateUsername done")

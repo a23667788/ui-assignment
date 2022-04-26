@@ -73,3 +73,7 @@ type UpdateUserResponse struct {
 type UpdateFullnameRequest struct {
 	Fullname string `json:"fullname"`
 }
+
+type ErrorResponse struct {
+	Error string `json:"error"`
+}

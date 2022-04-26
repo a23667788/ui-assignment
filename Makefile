@@ -60,7 +60,7 @@ run:
 
 .PHONY: swagger-init
 swagger-init:
-	cd ./cmd/server; swag init;
+	cd ./cmd/server; swag init --parseDependency;
 	rm -rf ./api/
 	mv ./cmd/server/docs ./api/
 	rm -rf ./cmd/server/docs

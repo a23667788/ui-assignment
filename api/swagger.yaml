@@ -1,0 +1,294 @@
+basePath: /
+definitions:
+  User:
+    properties:
+      account:
+        description: The account of user
+        type: string
+      created_at:
+        description: The created time of user
+        type: string
+      fullname:
+        description: The fullname of user
+        type: string
+      password:
+        description: The password of user
+        type: string
+      updated_at:
+        description: The updatedtime of user
+        type: string
+    type: object
+  entity.CreateUserResponse:
+    type: object
+  entity.DeleteUserResponse:
+    type: object
+  entity.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  entity.GetUser:
+    properties:
+      account:
+        type: string
+      fullname:
+        type: string
+    type: object
+  entity.ListUsersResponse:
+    properties:
+      users:
+        items:
+          $ref: '#/definitions/entity.GetUser'
+        type: array
+    type: object
+  entity.UpdateUserResponse:
+    type: object
+  entity.UserSessionResponse:
+    properties:
+      jtw:
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact:
+    email: support@swagger.io
+    name: Ben Chuang
+    url: http://www.swagger.io/support
+  description: This is a sample ui-assignment server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger ui-assignment API
+  version: "1.0"
+paths:
+  /user:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: This is the description for creating a user.
+      parameters:
+      - description: account
+        in: formData
+        name: acct
+        required: true
+        type: string
+      - description: fullname
+        in: formData
+        name: fullname
+        required: true
+        type: string
+      - description: password
+        in: formData
+        name: pwd
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.CreateUserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+      summary: Create a user
+      tags:
+      - Thing
+  /user/{account}:
+    delete:
+      description: This is the description for deleting a user.
+      parameters:
+      - description: account
+        in: path
+        name: account
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.DeleteUserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+      summary: Delete a user
+      tags:
+      - Thing
+    patch:
+      consumes:
+      - application/json
+      description: This is the description for updating a user.
+      parameters:
+      - description: account
+        in: path
+        name: account
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.UpdateUserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+      summary: Update a user
+      tags:
+      - Thing
+  /userDetail/{account}:
+    get:
+      description: This is the description for getting user detail inform.
+      parameters:
+      - description: account
+        in: path
+        name: account
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/User'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+      summary: Get user’s detailed information.
+      tags:
+      - Thing
+  /userSession:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: This is the description for creating a usersession.
+      parameters:
+      - description: account
+        in: formData
+        name: acct
+        required: true
+        type: string
+      - description: password
+        in: formData
+        name: pwd
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.UserSessionResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+      summary: Create a usersession
+      tags:
+      - Thing
+  /userf/{fullname}:
+    get:
+      description: This is the description for getting user.
+      parameters:
+      - description: fullname
+        in: path
+        name: fullname
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.GetUser'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+      summary: Get an user by fullname.
+      tags:
+      - Thing
+  /username/{account}:
+    patch:
+      consumes:
+      - application/json
+      description: This is the description for updating a user's fullname.
+      parameters:
+      - description: account
+        in: path
+        name: account
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.UpdateUserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+      summary: Update a user's fullname
+      tags:
+      - Thing
+  /users:
+    get:
+      description: This is the description for listing user.
+      parameters:
+      - description: paging
+        in: query
+        name: paging
+        type: integer
+      - description: sorting
+        in: query
+        name: sorting
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.ListUsersResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/entity.ErrorResponse'
+      summary: List all users
+      tags:
+      - Thing
+swagger: "2.0"
