@@ -64,3 +64,6 @@ type DeleteUserRequest struct {
 
 type DeleteUserResponse struct {
 }
+
+type UpdateUserResponse struct {
+}

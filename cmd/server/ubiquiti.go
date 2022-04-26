@@ -52,6 +52,10 @@ func (ui *Ubiquiti) initializeRoutes() {
 	// delete the user.
 	deleteR.HandleFunc("/user/{account}", ui.deleteUser)
 
+	patchR := ui.Router.Methods(http.MethodPatch).Subrouter()
+	// update the user.
+	patchR.HandleFunc("/user/{account}", ui.updateUser)
+
 }
 
 func (ui *Ubiquiti) listUsers(w http.ResponseWriter, r *http.Request) {
@@ -223,6 +227,44 @@ func (ui *Ubiquiti) deleteUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error(err)
 		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+}
+
+func (ui *Ubiquiti) updateUser(w http.ResponseWriter, r *http.Request) {
+	log.Info("updateUser start")
+	defer log.Info("updateUser done")
+
+	client := postgres.DBClient{}
+	client.Connect()
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Error(err)
+		respondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	vars := mux.Vars(r)
+	account := vars["account"]
+
+	log.Debug(string(body))
+
+	var user entity.UserTable
+	err = json.Unmarshal(body, &user)
+	if err != nil {
+		log.Error(err)
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	err = client.Update(account, user)
+	if err != nil {
+		log.Error(err)
+		respondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 

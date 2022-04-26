@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"time"
 
 	"github.com/a23667788/ui-assignment/internal/entity"
 	"github.com/jinzhu/gorm"
@@ -120,6 +121,22 @@ func (m *DBClient) Delete(account string) error {
 	if res.Error != nil {
 		return res.Error
 	}
+	return nil
+}
+
+func (m *DBClient) Update(account string, user entity.UserTable) error {
+	record := m.getUserRecordByAcct(account)
+	if record == nil {
+		return fmt.Errorf("record not found")
+	}
+
+	if record.Fullname == user.Fullname && record.Pwd == user.Pwd {
+		return fmt.Errorf("cannot update with same value")
+	}
+
+	now := time.Now()
+	m.client.Model(&entity.UserTable{}).Where("acct = ?", account).Updates(map[string]interface{}{"pwd": user.Pwd, "fullname": user.Fullname, "updated_at": now})
+
 	return nil
 }
 
