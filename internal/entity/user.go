@@ -49,3 +49,12 @@ type CreateUserRequest struct {
 
 type CreateUserResponse struct {
 }
+
+type UserSessionRequest struct {
+	Acct string `json:"account"`
+	Pwd  string `json:"password"`
+}
+
+type UserSessionResponse struct {
+	Jwt string `json:"jtw"`
+}

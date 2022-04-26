@@ -101,6 +101,15 @@ func (m *DBClient) Insert(user entity.CreateUserRequest) error {
 	return nil
 }
 
+func (m *DBClient) Validate(session entity.UserSessionRequest) error {
+	err := m.validateAccount(session.Acct, session.Pwd)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *DBClient) getUserRecordByFullname(fullname string) *entity.UserTable {
 	var user entity.UserTable
 
@@ -119,4 +128,18 @@ func (m *DBClient) getUserRecordByAcct(account string) *entity.UserTable {
 	} else {
 		return &user
 	}
+}
+
+func (m *DBClient) validateAccount(account string, passwd string) error {
+	var user entity.UserTable
+
+	if err := m.client.Where("acct = ?", account).First(&user).Error; err != nil {
+		return fmt.Errorf("not found")
+	}
+
+	if user.Pwd != passwd {
+		return fmt.Errorf("incorrect passwd")
+	}
+
+	return nil
 }

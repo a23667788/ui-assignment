@@ -5,9 +5,11 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/a23667788/ui-assignment/internal/client/postgres"
 	"github.com/a23667788/ui-assignment/internal/entity"
+	"github.com/a23667788/ui-assignment/internal/token"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
@@ -15,6 +17,7 @@ import (
 type Ubiquiti struct {
 	Router *mux.Router
 	DB     *sql.DB
+	Jwt    token.JWT
 }
 
 func (ui *Ubiquiti) Initialize() {
@@ -42,6 +45,8 @@ func (ui *Ubiquiti) initializeRoutes() {
 	postR := ui.Router.Methods(http.MethodPost).Subrouter()
 	// create the user (user sign up).
 	postR.HandleFunc("/user", ui.createUser)
+	// generate the token to the user (user sign in).
+	postR.HandleFunc("/userSession", ui.userSession)
 
 }
 
@@ -159,6 +164,45 @@ func (ui *Ubiquiti) createUser(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+}
+
+func (ui *Ubiquiti) userSession(w http.ResponseWriter, r *http.Request) {
+	log.Info("userSession start")
+	defer log.Info("userSession done")
+
+	client := postgres.DBClient{}
+	client.Connect()
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Error(err)
+		respondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// create session
+	var req entity.UserSessionRequest
+	err = json.Unmarshal(body, &req)
+	if err != nil {
+		log.Error(err)
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+	}
+
+	err = client.Validate(req)
+	if err != nil {
+		log.Error(err)
+		respondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tok, err := ui.Jwt.Create(time.Minute, req.Acct)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var resp entity.UserSessionResponse
+	resp.Jwt = tok
+	respondWithJSON(w, http.StatusOK, resp)
 }
 
 func respondWithError(w http.ResponseWriter, code int, message string) {
