@@ -103,12 +103,7 @@ func (ui *Ubiquiti) listUsers(w http.ResponseWriter, r *http.Request) {
 
 	log.Debug(res)
 
-	jsonResponse, err := json.Marshal(res)
-	if err != nil {
-		log.Error(err)
-		panic(err)
-	}
-	respondWithJSON(w, http.StatusOK, jsonResponse)
+	respondWithJSON(w, http.StatusOK, res)
 }
 
 func (ui *Ubiquiti) getUser(w http.ResponseWriter, r *http.Request) {
@@ -185,7 +180,7 @@ func (ui *Ubiquiti) createUser(w http.ResponseWriter, r *http.Request) {
 
 	log.Debug(string(body))
 
-	var req entity.CreateUserRequest
+	var req entity.User
 	err = json.Unmarshal(body, &req)
 	if err != nil {
 		log.Error(err)
@@ -283,7 +278,7 @@ func (ui *Ubiquiti) updateUser(w http.ResponseWriter, r *http.Request) {
 
 	log.Debug(string(body))
 
-	var user entity.UserTable
+	var user entity.User
 	err = json.Unmarshal(body, &user)
 	if err != nil {
 		log.Error(err)

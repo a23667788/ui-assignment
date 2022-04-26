@@ -11,7 +11,7 @@ type ListUsersResponse struct {
 	Users []GetUser
 }
 
-type UserTable struct {
+type User struct {
 	// The account of user
 	Acct string `json:"account"`
 

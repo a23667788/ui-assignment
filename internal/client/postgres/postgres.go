@@ -56,7 +56,7 @@ func (m *DBClient) Disconnect() {
 }
 
 func (m *DBClient) List(paging string, sorting string) (*entity.ListUsersResponse, error) {
-	var users []entity.UserTable
+	var users []entity.User
 	var getUser []entity.GetUser
 
 	var res = m.client
@@ -103,7 +103,7 @@ func (m *DBClient) Get(fullname string) (*entity.GetUser, error) {
 	return &entity.GetUser{Acct: record.Acct, Fullname: record.Fullname}, nil
 }
 
-func (m *DBClient) GetUserDetail(account string) (*entity.UserTable, error) {
+func (m *DBClient) GetUserDetail(account string) (*entity.User, error) {
 	record := m.getUserRecordByAcct(account)
 	if record == nil {
 		return nil, fmt.Errorf("record not found")
@@ -111,7 +111,7 @@ func (m *DBClient) GetUserDetail(account string) (*entity.UserTable, error) {
 	return record, nil
 }
 
-func (m *DBClient) Insert(user entity.CreateUserRequest) error {
+func (m *DBClient) Insert(user entity.User) error {
 	res := m.client.Create(&user)
 	if res.Error != nil {
 		return res.Error
@@ -142,7 +142,7 @@ func (m *DBClient) Delete(account string) error {
 	return nil
 }
 
-func (m *DBClient) Update(account string, user entity.UserTable) error {
+func (m *DBClient) Update(account string, user entity.User) error {
 	record := m.getUserRecordByAcct(account)
 	if record == nil {
 		return fmt.Errorf("record not found")
@@ -153,7 +153,7 @@ func (m *DBClient) Update(account string, user entity.UserTable) error {
 	}
 
 	now := time.Now()
-	m.client.Model(&entity.UserTable{}).Where("acct = ?", account).Updates(map[string]interface{}{"pwd": user.Pwd, "fullname": user.Fullname, "updated_at": now})
+	m.client.Model(&entity.User{}).Where("acct = ?", account).Updates(map[string]interface{}{"pwd": user.Pwd, "fullname": user.Fullname, "updated_at": now})
 
 	return nil
 }
@@ -168,13 +168,13 @@ func (m *DBClient) UpdateFullname(account string, updateFullname entity.UpdateFu
 		return fmt.Errorf("cannot update with same fullname")
 	}
 
-	m.client.Model(&entity.UserTable{}).Where("acct = ?", account).Updates(map[string]interface{}{"fullname": updateFullname.Fullname})
+	m.client.Model(&entity.User{}).Where("acct = ?", account).Updates(map[string]interface{}{"fullname": updateFullname.Fullname})
 
 	return nil
 }
 
-func (m *DBClient) getUserRecordByFullname(fullname string) *entity.UserTable {
-	var user entity.UserTable
+func (m *DBClient) getUserRecordByFullname(fullname string) *entity.User {
+	var user entity.User
 
 	if err := m.client.Where("fullname = ?", fullname).First(&user).Error; err != nil {
 		return nil
@@ -183,8 +183,8 @@ func (m *DBClient) getUserRecordByFullname(fullname string) *entity.UserTable {
 	}
 }
 
-func (m *DBClient) getUserRecordByAcct(account string) *entity.UserTable {
-	var user entity.UserTable
+func (m *DBClient) getUserRecordByAcct(account string) *entity.User {
+	var user entity.User
 
 	if err := m.client.Where("acct = ?", account).First(&user).Error; err != nil {
 		return nil
@@ -194,7 +194,7 @@ func (m *DBClient) getUserRecordByAcct(account string) *entity.UserTable {
 }
 
 func (m *DBClient) validateAccount(account string, passwd string) error {
-	var user entity.UserTable
+	var user entity.User
 
 	if err := m.client.Where("acct = ?", account).First(&user).Error; err != nil {
 		return fmt.Errorf("not found")
