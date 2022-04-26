@@ -158,6 +158,21 @@ func (m *DBClient) Update(account string, user entity.UserTable) error {
 	return nil
 }
 
+func (m *DBClient) UpdateFullname(account string, updateFullname entity.UpdateFullnameRequest) error {
+	record := m.getUserRecordByAcct(account)
+	if record == nil {
+		return fmt.Errorf("record not found")
+	}
+
+	if record.Fullname == updateFullname.Fullname {
+		return fmt.Errorf("cannot update with same fullname")
+	}
+
+	m.client.Model(&entity.UserTable{}).Where("acct = ?", account).Updates(map[string]interface{}{"fullname": updateFullname.Fullname})
+
+	return nil
+}
+
 func (m *DBClient) getUserRecordByFullname(fullname string) *entity.UserTable {
 	var user entity.UserTable
 

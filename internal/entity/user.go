@@ -69,3 +69,7 @@ type DeleteUserResponse struct {
 
 type UpdateUserResponse struct {
 }
+
+type UpdateFullnameRequest struct {
+	Fullname string `json:"fullname"`
+}

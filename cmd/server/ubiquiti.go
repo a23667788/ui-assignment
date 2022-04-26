@@ -56,6 +56,8 @@ func (ui *Ubiquiti) initializeRoutes() {
 	patchR := ui.Router.Methods(http.MethodPatch).Subrouter()
 	// update the user.
 	patchR.HandleFunc("/user/{account}", ui.updateUser)
+	// update user’s fullname.
+	patchR.HandleFunc("/username/{account}", ui.updateFullname)
 
 }
 
@@ -284,6 +286,44 @@ func (ui *Ubiquiti) updateUser(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+}
+
+func (ui *Ubiquiti) updateFullname(w http.ResponseWriter, r *http.Request) {
+	log.Info("updateUsername start")
+	defer log.Info("updateUsername done")
+
+	client := postgres.DBClient{}
+	client.Connect()
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Error(err)
+		respondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	log.Debug(string(body))
+
+	vars := mux.Vars(r)
+	account := vars["account"]
+
+	var req entity.UpdateFullnameRequest
+	err = json.Unmarshal(body, &req)
+	if err != nil {
+		log.Error(err)
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	err = client.UpdateFullname(account, req)
+	if err != nil {
+		log.Error(err)
+		respondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
 }
 
 func respondWithError(w http.ResponseWriter, code int, message string) {
