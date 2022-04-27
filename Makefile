@@ -27,6 +27,18 @@ db-migrate-up:
 db-migrate-down:
 	@migrate -database ${POSTGRESQL_URL} -path configs/migrations down
 
+. PHONY: docker-build
+docker-build:
+	@docker build --file build/Dockerfile --tag ui-assignment:v1.0.0 .
+
+. PHONY: docker-compose-up
+docker-compose-up:
+	@cd deployments; docker-compose up
+
+. PHONY: docker-compose-down
+docker-compose-down:
+	@cd deployments; docker-compose down
+
 
 .PHONY: dev-setup
 dev-setup: migrate-cli-setup

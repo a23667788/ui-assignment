@@ -11,6 +11,9 @@ import (
 	"github.com/a23667788/ui-assignment/internal/client/postgres"
 	"github.com/a23667788/ui-assignment/internal/entity"
 	"github.com/a23667788/ui-assignment/internal/token"
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
@@ -24,6 +27,21 @@ type Ubiquiti struct {
 }
 
 func (ui *Ubiquiti) Initialize() {
+
+	m, err := migrate.New(
+		"file://configs/migrations",
+		"postgres://ui_test:postgres@localhost:5432/ui_test?sslmode=disable",
+	)
+	if err != nil {
+		log.Warn("internal/dao/migrations - migrate.New")
+		log.Fatal(err)
+	}
+
+	if err := m.Up(); err != nil {
+		log.Warn("internal/dao/migrations - m.Up()")
+		log.Fatal(err)
+	}
+
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetLevel(log.DebugLevel)
 

@@ -1,16 +1,17 @@
-# Use postgres/example user/password credentials
-version: '3.1'
-
+version: "3.5"
 services:
-
-  db:
-    image: postgres
-    restart: always
-    environment:
-      POSTGRES_PASSWORD: example
-
-  adminer:
-    image: adminer
-    restart: always
+  app:
+    image: ui-assignment:v1.0.0
+    command: bash  -c "./bin/ui-assignment"
     ports:
-      - 8080:8080
+      - "8000:8000"
+    depends_on:
+      - db
+  db:
+    image: postgres:14.2
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=ui_test
+      - POSTGRES_PASSWORD=ui_test
+    restart: always
