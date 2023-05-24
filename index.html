@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>UI assignment</title>
+  </head>
+  <body>
+    <h2>Hello UI</h2>
+
+    <script>
+        let socket = new WebSocket("ws://localhost:8000/ws");
+        console.log("Attempting Connection...");
+
+        socket.onopen = () => {
+            console.log("Websocket Connected");
+        };
+
+        socket.onclose = event => {
+            console.log("Socket Closed Connection: ", event);
+            socket.send("Client Closed!")
+        };
+
+        socket.onerror = error => {
+            console.log("Socket Error: ", error);
+        };
+
+    </script>
+  </body>
+</html>
